@@ -544,16 +544,17 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
 							$annot .= ' /A <</S /URI /URI ' . $this->writer->string($pl[4]) . '>> >>';
 
 						} else {
+                            if (isset($this->mpdf->links[$pl[4]])) {
+                                $l = $this->mpdf->links[$pl[4]];
+                                // may not be set if #link points to non-existent target
+                                if (isset($this->mpdf->pageDim[$l[0]]['h'])) {
+                                    $htarg = $this->mpdf->pageDim[$l[0]]['h'] * Mpdf::SCALE;
+                                } else {
+                                    $htarg = $this->mpdf->h * Mpdf::SCALE;
+                                } // doesn't really matter
 
-							$l = $this->mpdf->links[$pl[4]];
-							// may not be set if #link points to non-existent target
-							if (isset($this->mpdf->pageDim[$l[0]]['h'])) {
-								$htarg = $this->mpdf->pageDim[$l[0]]['h'] * Mpdf::SCALE;
-							} else {
-								$htarg = $this->mpdf->h * Mpdf::SCALE;
-							} // doesn't really matter
-
-							$annot .= sprintf(' /Dest [%d 0 R /XYZ 0 %.3F null]>>', 1 + 2 * $l[0], $htarg - $l[1] * Mpdf::SCALE);
+                                $annot .= sprintf(' /Dest [%d 0 R /XYZ 0 %.3F null]>>', 1 + 2 * $l[0], $htarg - $l[1] * Mpdf::SCALE);
+                            }
 						}
 
 						$this->writer->write($annot);
